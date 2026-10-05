@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './core/auth';
 import { CoreProvider } from './core/store';
 import { AppShell } from './shell/AppShell';
 import { ToastProvider } from './ui/overlay';
+import { ErrorBoundary } from './ui/ErrorBoundary';
 import { Button, EmptyState, LoadingState } from './ui/primitives';
 
 const Today = lazy(() => import('./features/today/TodayPage'));
@@ -101,8 +102,10 @@ function Gate() {
 
 export function App() {
   return (
-    <AuthProvider>
-      <Gate />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Gate />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
