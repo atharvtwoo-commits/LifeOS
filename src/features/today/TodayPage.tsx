@@ -1,66 +1,63 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useApi } from '../../core/store';
+import { useApi, useCore } from '../../core/store';
 import { useAuth } from '../../core/auth';
-import { fmt, relDay, countdown } from '../../lib/tz';
-import { greeting } from '../../lib/date';
-import { Badge, BubbleIcon, Button, ErrorState, LoadingState, ProgressBar, Row, Section, Surface } from '../../ui/primitives';
-import { Icon } from '../../ui/Icon';
+import { api } from '../../api/client';
+import type { Task, CalItem } from '../../core/types';
+import { domainName } from '../../core/domains';
+import { fmt, relDay, minutesLabel, dayKey } from '../../lib/tz';
+import { Alert, Badge, BubbleIcon, Button, ProgressBar, ProgressRing, Row, Section, Surface, LoadingState, ErrorState } from '../../ui/primitives';
+import { IconTile, DomainIcon } from '../../ui/icons';
 import { TaskDetail, TaskRow } from '../tasks/TaskParts';
-import type { Task } from '../../core/types';
 
 interface TodayData {
   day: string; tz: string; state: string; why: string[];
-  schedule: { source: string; id: string; title: string; kind: string; domain: string; start: string; end: string | null; allDay: boolean; place?: string }[];
-  important: Task[]; overdueCount: number;
-  deadlines: { id: string; title: string; due_at: string; priority: string; importance: number; domain: string }[];
-  goals: { id: string; title: string; horizon: string | null; progress: number; health: { state: string } }[];
-  capacity: { available: number; planned: number; committed: number; remaining: number; overload: boolean; workDay: boolean };
-  habits: { id: string; title: string; stats: { doneToday: boolean; streak: number } }[];
-  running: { id: string; accumulated_ms: number; planned_min: number } | null;
-  inbox: number; alerts: { id: string; kind: string; title: string }[];
+  schedule: CalItem[]; important: Task[]; overdueCount: number;
+  deadlines: Record<string, unknown>[]; goals: Record<string, unknown>[];
+  capacity: { day: string; available: number; committed: number; planned: number; remaining: number; overload: boolean; tasks: number };
+  habits: Record<string, unknown>[]; running: Record<string, unknown> | null; inbox: Record<string, unknown>[]; alerts: Record<string, unknown>[];
 }
 
-const STATE_MSG: Record<string, string> = {
-  no_commitments: 'Nothing is scheduled or due today. A good day to make progress on what matters.',
-  overloaded: 'Today is full. Consider moving something.',
-  behind: 'You have overdue tasks. Let\'s catch up.',
-  deadline_approaching: 'A deadline is approaching soon.',
-  focus_opportunity: 'You have open time today — a good day for deep work.',
-  underplanned: 'Plenty of room today. Plan something meaningful.',
-  normal: 'A balanced day ahead.',
-};
-
 export default function TodayPage() {
-  const { user } = useAuth();
-  const { tz } = useAuth();
+  const { user, tz } = useAuth();
+  const { progress, goals } = useCore();
   const nav = useNavigate();
   const [open, setOpen] = useState<Task | null>(null);
   const { data, loading, error, reload } = useApi<TodayData>('/today');
 
-  if (loading && !data) return <div style={{ padding: 32 }}><LoadingState rows={4} /></div>;
-  if (error && !data) return <ErrorState text={error} onRetry={reload} />;
-  const t = data!;
+  if (loading) return <div style={{ padding: 24 }}><LoadingState label="Loading today" /></div>;
+  if (error) return <ErrorState text={error} onRetry={reload} />;
+  if (!data) return null;
 
   const now = new Date();
-  const schedule = t.schedule.filter((e) => !e.allDay).sort((a, b) => a.start.localeCompare(b.start));
-  const current = schedule.find((e) => {
-    const s = new Date(e.start).getTime();
-    const endTime = e.end ? new Date(e.end).getTime() : s + 3600000;
-    return s <= now.getTime() && now.getTime() < endTime;
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const todays = data.schedule.filter((e) => e.start);
+  const current = todays.find((e) => {
+    const s = new Date(e.start).getHours() * 60 + new Date(e.start).getMinutes();
+    const dur = e.end ? (new Date(e.end).getTime() - new Date(e.start).getTime()) / 60000 : 60;
+    return s <= nowMin && nowMin < s + dur;
   });
-  const next = schedule.find((e) => new Date(e.start).getTime() > now.getTime());
-  const focusEntry = current ?? next ?? schedule[0];
+  const next = todays.find((e) => new Date(e.start).getHours() * 60 + new Date(e.start).getMinutes() > nowMin);
+  const focusEntry = current ?? next ?? todays[0];
 
-  const capPct = t.capacity.available > 0 ? Math.min(1, (t.capacity.planned + t.capacity.committed) / t.capacity.available) : 0;
-  const usedMin = t.capacity.planned + t.capacity.committed;
+  const cap = data.capacity;
+  const load = cap.available > 0 ? Math.min(1, (cap.committed + cap.planned) / cap.available) : 0;
+  const stateMsg: Record<string, string> = {
+    normal: 'A balanced day with room for what matters.',
+    overloaded: 'Today is full. Consider moving something.',
+    behind: 'You have overdue work. Let\u2019s catch up.',
+    deadline_approaching: 'Deadlines are approaching.',
+    underplanned: 'Plenty of room today.',
+    no_commitments: 'Nothing scheduled today. A good day to plan ahead.',
+  };
 
   return (
     <>
       <header className="today-hero">
-        <div className="caption">{new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}</div>
-        <h1>{greeting(now)}, {user?.name ?? 'there'}.</h1>
-        <p className="muted lead">{t.why?.[0] ?? STATE_MSG[t.state] ?? STATE_MSG.normal}</p>
+        <div className="caption">{fmt.dateLong(now.toISOString(), tz)}</div>
+        <h1>{now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening'}, {user?.name}.</h1>
+        <p className="muted lead">{stateMsg[data.state] ?? stateMsg.normal}</p>
+        {data.why.length > 0 && <Alert tone="accent" icon="info">{data.why.join(' ')}</Alert>}
       </header>
 
       <div className="today-grid">
@@ -69,9 +66,7 @@ export default function TodayPage() {
             <Surface tone="accent" pad="lg" className="now-card">
               <div className="caption" style={{ color: 'var(--accent-lavender)' }}>{current ? 'Now' : 'Next up'}</div>
               <h2>{focusEntry.title}</h2>
-              <p className="muted small">
-                {fmt.time(focusEntry.start, tz)}{focusEntry.end ? ` – ${fmt.time(focusEntry.end, tz)}` : ''}{focusEntry.place ? ` · ${focusEntry.place}` : ''}
-              </p>
+              <p className="muted small">{fmt.time(focusEntry.start, tz)}{focusEntry.end ? ` · ${minutesLabel((new Date(focusEntry.end).getTime() - new Date(focusEntry.start).getTime()) / 60000)}` : ''}{focusEntry.place ? ` · ${focusEntry.place}` : ''}</p>
               <div className="now-actions">
                 <Button variant="primary" icon="play" onClick={() => nav('/focus')}>Start focus</Button>
                 <Button variant="ghost" onClick={() => nav('/calendar')}>View day</Button>
@@ -79,49 +74,41 @@ export default function TodayPage() {
             </Surface>
           )}
 
+          {data.overdueCount > 0 && (
+            <Alert tone="warn" icon="alert">{data.overdueCount} task{data.overdueCount === 1 ? '' : 's'} overdue. <Link to="/tasks" className="link">Review</Link></Alert>
+          )}
+
           <Section title="Important" action={<Link to="/tasks" className="link small">All tasks</Link>}>
             <Surface pad="none">
-              {t.important.length ? (
-                <ul className="list divided">{t.important.map((task) => <li key={task.id}><TaskRow task={task} onOpen={setOpen} /></li>)}</ul>
+              {data.important.length ? (
+                <ul className="list divided">{data.important.map((t) => <li key={t.id}><TaskRow task={t} onOpen={setOpen} /></li>)}</ul>
               ) : <p className="muted small" style={{ padding: 20 }}>No high-priority tasks open.</p>}
             </Surface>
           </Section>
 
-          <Section title="Upcoming deadlines" action={<Link to="/deadlines" className="link small">All deadlines</Link>}>
-            <div className="list">
-              {t.deadlines.length === 0 && <p className="muted small" style={{ padding: 8 }}>No deadlines in the next week.</p>}
-              {t.deadlines.map((d) => {
-                const c = countdown(d.due_at);
-                return (
-                  <Row as="div" key={d.id} leading={<BubbleIcon name="flag" tone="plum" size="sm" />} title={d.title}
-                    subtitle={c.overdue ? c.text : `${relDay(d.due_at, tz)} · ${c.text}`}
-                    trailing={<Badge tone={c.overdue ? 'danger' : d.priority === 'high' ? 'accent' : undefined}>{d.priority}</Badge>} />
-                );
-              })}
-            </div>
-          </Section>
+          {data.deadlines.length > 0 && (
+            <Section title="Upcoming deadlines" action={<Link to="/deadlines" className="link small">All</Link>}>
+              <div className="list">
+                {data.deadlines.map((d: Record<string, unknown>, i) => (
+                  <Row as="div" key={i} leading={<BubbleIcon name="flag" tone="plum" size="sm" />} title={String(d.title)} subtitle={d.due_at ? relDay(String(d.due_at), tz) : ''} />
+                ))}
+              </div>
+            </Section>
+          )}
 
-          <Section title="Goals in focus" action={<Link to="/goals" className="link small">All goals</Link>}>
-            <div className="goal-pair">
-              {t.goals.map((g) => (
-                <Link to="/goals" key={g.id} className="surface goal-mini">
-                  <div className="ring-sm"><ProgressBar value={g.progress} label={g.title} /></div>
-                  <span className="row-main"><span className="row-title">{g.title}</span><span className="row-sub">{Math.round(g.progress * 100)}% · {g.horizon}</span></span>
-                </Link>
-              ))}
-              {t.goals.length === 0 && <p className="muted small">No active goals.</p>}
-            </div>
-          </Section>
-
-          {t.habits.length > 0 && (
-            <Section title="Habits today" action={<Link to="/habits" className="link small">All habits</Link>}>
-              <Surface pad="none">
-                <ul className="list divided">
-                  {t.habits.map((h) => (
-                    <li key={h.id}><Row as="div" leading={<BubbleIcon name="repeat" tone="mist" size="sm" />} title={h.title} subtitle={`Streak: ${h.stats.streak}`} trailing={h.stats.doneToday ? <Badge tone="ok">Done</Badge> : <Badge>Due</Badge>} /></li>
-                  ))}
-                </ul>
-              </Surface>
+          {goals.length > 0 && (
+            <Section title="Goals in focus" action={<Link to="/goals" className="link small">All</Link>}>
+              <div className="goal-pair">
+                {goals.slice(0, 2).map((g) => {
+                  const p = progress.goals[g.id]?.progress ?? 0;
+                  return (
+                    <Link to="/goals" key={g.id} className="surface goal-mini">
+                      <ProgressRing value={p} label={g.title} size={48}>{Math.round(p * 100)}</ProgressRing>
+                      <span className="row-main"><span className="row-title">{g.title}</span><span className="row-sub">{g.horizon}</span></span>
+                    </Link>
+                  );
+                })}
+              </div>
             </Section>
           )}
         </div>
@@ -129,49 +116,40 @@ export default function TodayPage() {
         <aside className="today-side stagger">
           <Surface>
             <div className="caption">Today's capacity</div>
-            <div className="capacity-figure num">{Math.round((usedMin / 60) * 10) / 10}<span className="muted"> / {Math.round(t.capacity.available / 60)} h</span></div>
-            <ProgressBar value={capPct} label="Capacity used" />
-            <p className="muted small" style={{ marginTop: 10 }}>
-              {t.capacity.overload ? 'Overloaded — move something.' : capPct > 0.7 ? 'A full day with little room.' : capPct > 0.3 ? 'A comfortable load.' : 'Plenty of room today.'}
-            </p>
+            <div className="capacity-figure num">{Math.round(((cap.committed + cap.planned) / 60) * 10) / 10}<span className="muted"> / {Math.round(cap.available / 60 * 10) / 10} h</span></div>
+            <ProgressBar value={load} label="Capacity used" />
+            <p className="muted small" style={{ marginTop: 10 }}>{cap.overload ? 'Overloaded. Consider moving something.' : load > 0.5 ? 'A comfortable load with some room.' : 'Plenty of room today.'}</p>
           </Surface>
 
-          <Surface>
-            <div className="caption" style={{ marginBottom: 8 }}>Schedule</div>
-            {schedule.length === 0 ? <p className="muted small">Nothing scheduled today.</p> : (
+          {todays.length > 0 && (
+            <Surface>
+              <div className="caption" style={{ marginBottom: 8 }}>Schedule</div>
               <ol className="timeline">
-                {schedule.map((e) => (
+                {todays.map((e) => (
                   <li key={e.id} data-now={e === current}>
                     <span className="t-time num">{fmt.time(e.start, tz)}</span>
                     <span className="t-title">{e.title}</span>
                   </li>
                 ))}
               </ol>
-            )}
-          </Surface>
+            </Surface>
+          )}
 
           <Surface tone="accent">
             <div className="agent-suggest">
               <BubbleIcon name="agent" size="sm" />
               <div>
                 <div className="caption" style={{ color: 'var(--accent-lavender)' }}>Agent</div>
-                <p className="small" style={{ margin: '6px 0 12px' }}>Ask the Agent to fix your week, plan study sessions, or reschedule around a deadline.</p>
+                <p className="small" style={{ margin: '6px 0 12px' }}>Ask the Agent to plan your day, rebalance your week, or process your inbox.</p>
                 <Button size="sm" onClick={() => nav('/agent')}>Open Agent <Icon name="chevron-right" /></Button>
               </div>
             </div>
           </Surface>
-
-          {t.alerts.length > 0 && (
-            <Surface>
-              <div className="caption" style={{ marginBottom: 8 }}>Alerts</div>
-              <div className="list">
-                {t.alerts.map((a) => <Row as="div" key={a.id} leading={<BubbleIcon name="bell" tone="plum" size="sm" />} title={a.title} subtitle={a.kind} />)}
-              </div>
-            </Surface>
-          )}
         </aside>
       </div>
       <TaskDetail task={open} onClose={() => setOpen(null)} />
     </>
   );
 }
+
+import { Icon } from '../../ui/Icon';

@@ -1,107 +1,105 @@
 import { useApi, useCore } from '../../core/store';
-import { goalProgress, pct, projectProgress } from '../../core/progress';
-import { PageHeader, ProgressBar, Section, Surface, LoadingState, ErrorState } from '../../ui/primitives';
+import { useAuth } from '../../core/auth';
+import { domainName } from '../../core/domains';
+import { Badge, BubbleIcon, PageHeader, ProgressBar, Section, Surface, LoadingState, ErrorState } from '../../ui/primitives';
+import { fmt, minutesLabel } from '../../lib/tz';
 
-interface ProgressData {
-  goals: Record<string, { progress: number; tasksTotal?: number; tasksDone?: number; milestonesTotal?: number; milestonesDone?: number; done?: boolean }>;
-  projects: Record<string, { progress: number; tasksTotal?: number; tasksDone?: number; done?: boolean }>;
-  milestones: Record<string, { progress: number; done?: boolean }>;
-  goalList: { id: string; title: string; status: string; domain: string; progress: number; health: { state: string } }[];
-  projectList: { id: string; title: string; status: string; domain: string; goal_id: string | null; progress: number; health: { state: string } }[];
-  planVsActual: { days: { day: string; planned: number; actual: number; focus: number }[]; summary: { planned: number; actual: number; focus: number; accuracy: number } };
+interface CompassData {
+  days: number; totalFocusMinutes: number;
+  allocation: { domain: string; minutes: number; share: number; calendarMinutes: number }[];
+  goals: { id: string; title: string; domain: string; priority: number; focusMinutes: number; share: number; tasksCompleted: number }[];
+  neglected: string[];
+  plannedVsActual: { domain: string; plannedMin: number; actualMin: number }[];
+  topPriorities: { id: string; title: string; domain: string; priority: number; focusMinutes: number; share: number; tasksCompleted: number }[];
 }
 
 export default function ProgressPage() {
-  const { goals, projects, tasks, progress } = useCore();
-  const { data, loading, error, reload } = useApi<ProgressData>('/progress');
+  const { goals, projects, tasks, progress, status, reload } = useCore();
+  const { data, loading, error, reload: reloadCompass } = useApi<CompassData>('/compass?days=14');
 
-  if (loading && !data) return <div style={{ padding: 32 }}><LoadingState rows={4} /></div>;
-  if (error && !data) return <ErrorState text={error} onRetry={reload} />;
+  if (status === 'loading') return <div style={{ padding: 24 }}><LoadingState label="Loading progress" /></div>;
+  if (status === 'error') return <ErrorState text="Couldn't load progress." onRetry={reload} />;
 
-  const pva = data?.planVsActual;
-  const maxBar = pva ? Math.max(1, ...pva.days.map((d) => Math.max(d.planned, d.actual))) : 1;
   const done = tasks.filter((t) => t.done_at).length;
-  const focusTotal = pva?.summary.focus ?? 0;
-  const planned = pva?.summary.planned ?? 0;
-  const actual = pva?.summary.actual ?? 0;
+  const focusTotal = data?.totalFocusMinutes ?? 0;
 
   return (
     <>
-      <PageHeader eyebrow="Progress" title="How it's going" subtitle="Outcomes and trends, derived from your records." />
+      <PageHeader eyebrow="Progress" title="How it's going" subtitle="Outcomes and trends, without the noise." />
       <div className="stats stagger">
         <div><div className="stat-num num">{Math.round(focusTotal / 6) / 10}<small> h</small></div><div className="muted small">Focus (14 days)</div></div>
-        <div><div className="stat-num num">{actual}<small> / {planned}</small></div><div className="muted small">Tasks done vs planned</div></div>
         <div><div className="stat-num num">{done}</div><div className="muted small">Tasks completed</div></div>
-        <div><div className="stat-num num">{goals.length}</div><div className="muted small">Active goals</div></div>
+        <div><div className="stat-num num">{goals.filter((g) => g.status === 'active').length}</div><div className="muted small">Active goals</div></div>
+        <div><div className="stat-num num">{projects.filter((p) => p.status === 'active').length}</div><div className="muted small">Active projects</div></div>
       </div>
 
-      {pva && pva.days.length > 0 && (
-        <div className="progress-grid">
-          <Section title="Plan vs reality">
-            <Surface>
-              <figure className="chart" aria-label="Planned versus completed tasks">
-                <svg viewBox="0 0 280 150" role="img" aria-hidden="true">
-                  {pva.days.map((d, i) => {
-                    const x = 12 + i * (264 / Math.max(pva.days.length, 1));
-                    const w = 10;
-                    const hp = (d.planned / maxBar) * 120;
-                    const hc = (d.actual / maxBar) * 120;
-                    return (
-                      <g key={i}>
-                        <rect x={x} y={126 - hp} width={w} height={hp} rx={3} className="bar-plan" />
-                        <rect x={x + w + 2} y={126 - hc} width={w} height={hc} rx={3} className="bar-done" />
-                      </g>
-                    );
-                  })}
-                </svg>
-                <figcaption className="legend"><span><i className="bar-plan-key" />Planned</span><span><i className="bar-done-key" />Completed</span></figcaption>
-              </figure>
-            </Surface>
-          </Section>
-          <Section title="Focus time">
-            <Surface>
-              <figure className="chart" aria-label="Focus minutes">
-                <svg viewBox="0 0 280 110" aria-hidden="true">
-                  {pva.days.length > 1 && (() => {
-                    const maxF = Math.max(1, ...pva.days.map((d) => d.focus));
-                    const pts = pva.days.map((d, i) => [8 + (i * 264) / (pva.days.length - 1), 8 + (1 - d.focus / maxF) * 84] as const);
-                    const line = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
-                    return <>
-                      <path d={`${line} L272,100 L8,100 Z`} fill="url(#fx)" />
-                      <path d={line} fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      {pts.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i === pts.length - 1 ? 4 : 2.5} fill={i === pts.length - 1 ? '#cdbefc' : '#a78bfa'} />)}
-                    </>;
-                  })()}
-                  <defs><linearGradient id="fx" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#8b5cf6" stopOpacity=".28" /><stop offset="1" stopColor="#8b5cf6" stopOpacity="0" /></linearGradient></defs>
-                </svg>
-              </figure>
-            </Surface>
-          </Section>
-        </div>
+      {loading && <Surface><LoadingState label="Loading analytics" /></Surface>}
+      {error && <Surface><ErrorState text={error} onRetry={reloadCompass} /></Surface>}
+      {data && (
+        <>
+          {data.allocation.length > 0 && (
+            <Section title="Time allocation · 14 days">
+              <Surface>
+                {data.allocation.map((a) => (
+                  <div key={a.domain} style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span className="small">{domainName(a.domain)}</span>
+                      <span className="num small muted">{minutesLabel(a.minutes)}{a.calendarMinutes ? ` + ${minutesLabel(a.calendarMinutes)} cal` : ''}</span>
+                    </div>
+                    <ProgressBar value={a.share} label={`${domainName(a.domain)} share`} />
+                  </div>
+                ))}
+              </Surface>
+            </Section>
+          )}
+
+          {data.topPriorities.length > 0 && (
+            <Section title="Top priorities">
+              <Surface pad="none">
+                <ul className="list divided">
+                  {data.topPriorities.slice(0, 5).map((g) => (
+                    <li key={g.id}><div className="row" style={{ padding: '12px 16px' }}>
+                      <BubbleIcon name="goals" tone="royal" size="sm" />
+                      <span className="row-main"><span className="row-title">{g.title}</span><span className="row-sub">{minutesLabel(g.focusMinutes)} focus · {g.tasksCompleted} tasks done</span></span>
+                    </div></li>
+                  ))}
+                </ul>
+              </Surface>
+            </Section>
+          )}
+
+          {data.neglected.length > 0 && (
+            <Section title="Needs attention">
+              <Surface>
+                {data.neglected.map((d) => (
+                  <div key={d} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <Badge tone="warn">{domainName(d)}</Badge>
+                    <span className="muted small">No focus time in the last {data.days} days</span>
+                  </div>
+                ))}
+              </Surface>
+            </Section>
+          )}
+        </>
       )}
 
-      <div className="progress-grid">
-        <Section title="Goals">
-          <Surface>
-            {goals.length === 0 ? <p className="muted small">No goals yet.</p> : (
-              <div className="bars">{goals.map((g) => {
-                const p = goalProgress(g, projects, progress);
-                return <div key={g.id}><div className="bars-row"><span>{g.title}</span><span className="num muted">{pct(p)}%</span></div><ProgressBar value={p} label={g.title} /></div>;
-              })}</div>
-            )}
-          </Surface>
-        </Section>
-        <Section title="Projects">
-          <Surface>
-            {projects.length === 0 ? <p className="muted small">No projects yet.</p> : (
-              <div className="bars">{projects.map((p) => {
-                const v = projectProgress(p, progress);
-                return <div key={p.id}><div className="bars-row"><span>{p.title}</span><span className="num muted">{pct(v)}%</span></div><ProgressBar value={v} label={p.title} /></div>;
-              })}</div>
-            )}
-          </Surface>
-        </Section>
-      </div>
+      <Section title="Goals">
+        <Surface><div className="bars">{goals.map((g) => {
+          const p = progress.goals[g.id]?.progress ?? 0;
+          return <div key={g.id}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span className="small">{g.title}</span><span className="num small">{Math.round(p * 100)}%</span>
+          </div><ProgressBar value={p} label={g.title} /></div>;
+        })}</div></Surface>
+      </Section>
+
+      <Section title="Projects">
+        <Surface><div className="bars">{projects.map((p) => {
+          const v = progress.projects[p.id]?.progress ?? 0;
+          return <div key={p.id}><div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span className="small">{p.title}</span><span className="num small">{Math.round(v * 100)}%</span>
+          </div><ProgressBar value={v} label={p.title} /></div>;
+        })}</div></Surface>
+      </Section>
     </>
   );
 }
