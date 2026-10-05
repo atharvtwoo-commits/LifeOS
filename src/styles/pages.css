@@ -404,3 +404,4 @@
   .cal-week-day { grid-template-columns: 52px 1fr; }
   .cal-views .tabs .tab { padding: 0 var(--s2); font-size: var(--fs-caption); }
 }
+
