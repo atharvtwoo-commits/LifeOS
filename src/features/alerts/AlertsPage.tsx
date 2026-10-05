@@ -12,15 +12,16 @@ const KIND_LABEL: Record<string, string> = {
 
 export default function AlertsPage() {
   const { run } = useCore();
-  const { data, loading, error, reload } = useApi<{ items: AlertItem[]; total: number }>('/alerts?all=1');
+  const { data, loading, error, reload } = useApi<AlertItem[]>('/alerts?all=1');
 
   const dismiss = (id: string) => run(() => api.post(`/alerts/${id}/dismiss`), 'Dismissed');
 
+  const items = data ?? [];
   // Group by priority
-  const high = data?.items.filter((a) => a.priority === 'high' && !a.dismissed_at) ?? [];
-  const medium = data?.items.filter((a) => a.priority === 'medium' && !a.dismissed_at) ?? [];
-  const low = data?.items.filter((a) => a.priority === 'low' && !a.dismissed_at) ?? [];
-  const dismissed = data?.items.filter((a) => a.dismissed_at) ?? [];
+  const high = items.filter((a) => a.priority === 'high' && !a.dismissed_at);
+  const medium = items.filter((a) => a.priority === 'medium' && !a.dismissed_at);
+  const low = items.filter((a) => a.priority === 'low' && !a.dismissed_at);
+  const dismissed = items.filter((a) => a.dismissed_at);
 
   return (
     <>
