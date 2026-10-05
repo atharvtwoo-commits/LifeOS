@@ -334,6 +334,55 @@
 .cal-agenda-day { display: grid; gap: var(--s2); }
 .cal-agenda-head { font-size: var(--fs-small); color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; padding: var(--s2) 0; display: flex; align-items: center; }
 
+/* ── Custom overlay (detail panels) ── */
+.overlay-backdrop { position: fixed; inset: 0; z-index: 80; background: rgba(0, 0, 0, 0.4); display: grid; place-items: center; padding: var(--s4); animation: lo-fade var(--dur) var(--ease-out) both; }
+.overlay-panel { width: 100%; max-width: 560px; max-height: 85vh; overflow-y: auto; background: var(--surface-1); border: 1px solid var(--line-strong); border-radius: var(--r-lg); box-shadow: var(--shadow-lg); animation: lo-fade-up var(--dur) var(--ease-out) both; }
+.overlay-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding: var(--s5) var(--s6); border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface-1); z-index: 1; }
+
+/* ── Compass ── */
+.compass-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s4); }
+.compass-stat { display: grid; gap: 2px; }
+@media (min-width: 768px) { .compass-summary { grid-template-columns: repeat(4, 1fr); } }
+
+/* ── Decisions ── */
+.decision-flow { display: grid; gap: var(--s5); }
+.decision-step { display: grid; gap: 4px; padding-left: var(--s4); border-left: 2px solid var(--surface-4); }
+.decision-step .caption { font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); }
+
+/* ── Timeline ── */
+.tl-group { margin-bottom: var(--s6); }
+.tl-date-head { font-size: var(--fs-small); font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: var(--s2); padding-left: 2px; }
+
+/* ── Alerts ── */
+.alert-group { margin-bottom: var(--s6); }
+.alert-group-head { display: flex; align-items: center; gap: 8px; margin-bottom: var(--s3); }
+.alert-group[data-priority='high'] .surface { border-color: rgba(224, 133, 133, 0.2); }
+
+/* ── Experiments ── */
+.exp-list { display: grid; gap: var(--s4); }
+.exp-card { display: grid; gap: var(--s4); }
+.exp-head { display: flex; justify-content: space-between; align-items: start; gap: var(--s3); }
+.exp-title { font-weight: 550; font-size: var(--fs-body); }
+.exp-flow { display: flex; flex-wrap: wrap; gap: var(--s4); }
+.exp-step { display: grid; gap: 2px; padding-left: var(--s3); border-left: 2px solid var(--surface-4); }
+.exp-step .caption { font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); }
+.exp-actions { display: flex; gap: var(--s2); }
+.exp-results-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s4); }
+.exp-result-stat { display: grid; gap: 2px; padding: var(--s3); border-radius: var(--r-md); background: var(--surface-2); }
+@media (min-width: 768px) { .exp-results-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* ── Review ── */
+.review-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); margin-top: var(--s3); }
+.review-fact { display: grid; gap: 2px; justify-items: center; text-align: center; }
+.review-fact .num { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.03em; }
+@media (min-width: 768px) { .review-facts { grid-template-columns: repeat(6, 1fr); } }
+
+/* ── Progress data tags ── */
+.data-tag { display: inline-block; font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; padding: 1px 5px; border-radius: var(--r-sm); background: var(--surface-3); color: var(--text-3); margin-left: 4px; vertical-align: middle; }
+
+/* ── Search ── */
+.search-kbd { font-family: var(--font); background: var(--surface-3); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 1px 6px; font-size: var(--fs-caption); color: var(--text-2); }
+
 /* ── Responsive fixes ── */
 @media (max-width: 430px) {
   .today-capture { flex-direction: column; }
