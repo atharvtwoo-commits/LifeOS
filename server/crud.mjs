@@ -293,7 +293,7 @@ export function saveSettings(userId, patch) {
     if (['workStart', 'workEnd'].includes(k) && !/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) throw bad(`${k} must be HH:MM`);
     if (k === 'bufferMin' && !(Number.isInteger(v) && v >= 0 && v <= 240)) throw bad('bufferMin must be 0–240');
     if (k === 'workDays' && !(Array.isArray(v) && v.every((d) => Number.isInteger(d) && d >= 0 && d <= 6))) throw bad('workDays invalid');
-    if (k === 'theme' && !['dark', 'light', 'system'].includes(v)) throw bad('Invalid theme');
+    if (k === 'theme' && !['dark', 'light'].includes(v)) throw bad('Invalid theme');
     if (k === 'density' && !['comfortable', 'compact'].includes(v)) throw bad('Invalid density');
     if (k === 'motion' && !['system', 'reduced', 'full'].includes(v)) throw bad('Invalid motion');
     if (k === 'language' && !/^[a-z]{2}(-[A-Z]{2})?$/.test(v)) throw bad('Invalid language');

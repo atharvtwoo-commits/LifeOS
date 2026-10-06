@@ -4,7 +4,7 @@ import { api } from '../api/client';
 
 export interface Settings {
   timezone: string; language: string; weekStart: number; workStart: string; workEnd: string; workDays: number[]; bufferMin: number;
-  theme: 'dark' | 'light' | 'system'; density: 'comfortable' | 'compact'; motion: 'system' | 'reduced' | 'full';
+  theme: 'dark' | 'light'; density: 'comfortable' | 'compact'; motion: 'system' | 'reduced' | 'full';
   notifications: { deadlines: boolean; overdue: boolean; capacity: boolean; stalled: boolean; habits: boolean; agent: boolean; maxPerDay: number };
   privacy: { agentUsesMemory: boolean; agentMayReadNotes: boolean };
   agent: { enabled: boolean; confirmCreates: boolean };
@@ -42,7 +42,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.dataset.density = settings.density;
     root.dataset.motion = settings.motion;
-  }, [settings.density, settings.motion]);
+
+    const applyTheme = () => {
+      root.classList.add('theme-transitioning');
+      root.dataset.theme = settings.theme;
+      root.style.colorScheme = settings.theme;
+    };
+
+    applyTheme();
+
+    // Clean up transition class after the coordinated theme change completes
+    const t = setTimeout(() => root.classList.remove('theme-transitioning'), 380);
+    return () => clearTimeout(t);
+  }, [settings.theme, settings.density, settings.motion]);
 
   const login = useCallback(async (email: string, password: string) => { setUser(await api.post<User>('/auth/login', { email, password })); setStatus('authed'); }, []);
   const register = useCallback(async (name: string, email: string, password: string) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BubbleIcon, Button } from '../ui/primitives';
 import { Icon } from '../ui/Icon';
@@ -6,31 +6,59 @@ import { Overlay } from '../ui/overlay';
 import { ALL_NAV, NAV_GROUPS } from './nav';
 import type { NavItem } from './nav';
 
-function SideLink({ item }: { item: NavItem }) {
+const NAV_ORDER = [
+  '/', '/tasks', '/calendar', '/goals', '/projects', '/milestones',
+  '/habits', '/focus', '/progress', '/capacity', '/compass',
+  '/patterns', '/agent', '/capture', '/create', '/search',
+  '/deadlines', '/review', '/timeline', '/memory', '/decisions',
+  '/experiments', '/accomplishments', '/alerts', '/connect', '/domains', '/settings', '/map',
+];
+
+function SideLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   return (
-    <NavLink to={item.path} end={item.path === '/'} className="side-link" aria-label={item.label} title={item.label}>
+    <NavLink
+      to={item.path}
+      end={item.path === '/'}
+      className="side-link"
+      aria-label={item.label}
+      title={collapsed ? item.label : undefined}
+    >
       <Icon name={item.icon} />
       <span className="side-label">{item.label}</span>
     </NavLink>
   );
 }
 
-function Sidebar() {
+function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const nav = useNavigate();
   return (
     <aside className="sidebar" aria-label="Primary">
-      <div className="brand">
+      <button
+        type="button"
+        className="brand"
+        onClick={onToggle}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        title={collapsed ? 'Expand sidebar' : undefined}
+      >
         <BubbleIcon name="focus" tone="purple" size="md" />
         <span className="brand-name">LifeOS</span>
-      </div>
-      <Button variant="primary" icon="plus" onClick={() => nav('/create')} className="side-create" aria-label="Create">
+      </button>
+      <Button
+        variant="primary"
+        size="sm"
+        icon="plus"
+        onClick={() => nav('/create')}
+        className="side-create"
+        aria-label="Create"
+        title={collapsed ? 'Create' : undefined}
+      >
         <span className="side-label">Create</span>
       </Button>
       <nav className="side-nav">
         {NAV_GROUPS.map((g) => (
           <div key={g.id} className="side-group">
             {g.label && <div className="caption side-group-label">{g.label}</div>}
-            {g.items.map((i) => <SideLink key={i.id} item={i} />)}
+            {g.items.map((i) => <SideLink key={i.id} item={i} collapsed={collapsed} />)}
           </div>
         ))}
       </nav>
@@ -60,15 +88,42 @@ export function AppShell() {
   const [more, setMore] = useState(false);
   const loc = useLocation();
   const nav = useNavigate();
+  const prevPath = useRef(loc.pathname);
   const secondary = ALL_NAV.filter((i) => !i.mobilePrimary);
   const moreActive = secondary.some((i) => i.path === loc.pathname);
 
+  const [collapsed, setCollapsed] = useState(() => {
+    const stored = localStorage.getItem('lifeos:sidebar');
+    if (stored !== null) return stored === 'collapsed';
+    return window.innerWidth < 1024;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('lifeos:sidebar', collapsed ? 'collapsed' : 'expanded');
+  }, [collapsed]);
+
+  const toggleSidebar = useCallback(() => setCollapsed(c => !c), []);
+
+  const idx = NAV_ORDER.indexOf(loc.pathname);
+  const prevIdx = NAV_ORDER.indexOf(prevPath.current);
+  const anim = idx === -1 || prevIdx === -1 ? 'default' : idx > prevIdx ? 'forward' : idx < prevIdx ? 'back' : 'default';
+
+  useEffect(() => { prevPath.current = loc.pathname; }, [loc.pathname]);
+
   return (
-    <div className="shell">
+    <div className={`shell${collapsed ? '' : ' sb-expanded'}`}>
+      <div className="shell-atmosphere" aria-hidden="true">
+        <div className="atmos-orb atmos-orb-1" />
+        <div className="atmos-orb atmos-orb-2" />
+        <div className="atmos-orb atmos-orb-3" />
+        <div className="atmos-orb atmos-orb-4" />
+        <div className="atmos-grid" />
+        <div className="atmos-haze" />
+      </div>
       <a href="#main" className="skip-link">Skip to content</a>
-      <Sidebar />
+      <Sidebar collapsed={collapsed} onToggle={toggleSidebar} />
       <main id="main" className="main" tabIndex={-1}>
-        <div key={loc.pathname} className="page page-enter">
+        <div key={loc.pathname} className="page" data-anim={anim}>
           <Outlet />
         </div>
       </main>

@@ -67,6 +67,34 @@
   --rail-w: 84px;
   --bottom-nav-h: 68px;
   --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* ── Atmospheric background system ── */
+  /* Near-black base with deep-purple ambient illumination — extends the login language. */
+  /* Opacities match the login orb system (0.35–0.5) so the atmosphere is visibly present. */
+  --atmos-base: #07060c;
+  --atmos-orb-1: rgba(109, 62, 230, 0.42);   /* deep royal purple, top-left — primary glow */
+  --atmos-orb-2: rgba(76, 29, 149, 0.38);    /* deep violet, bottom-right — secondary glow */
+  --atmos-orb-3: rgba(167, 139, 250, 0.28);  /* lavender accent, center — ambient fill */
+  --atmos-orb-4: rgba(139, 92, 246, 0.15);    /* soft purple haze, mid-right */
+  --atmos-grid: rgba(139, 92, 246, 0.045);    /* grid texture lines */
+  --atmos-grid-size: 56px;
+
+  /* ── Surface hierarchy (Level 0–4) ── */
+  /* Level 0 = atmospheric background (above). Level 1 = app surface, Level 2 = cards, Level 3 = controls, Level 4 = emphasis. */
+  --surface-l1: rgba(12, 11, 18, 0.50);       /* main app surface — translucent, shows atmosphere */
+  --surface-l2: rgba(18, 17, 25, 0.68);       /* cards/panels */
+  --surface-l3: rgba(26, 25, 34, 0.82);       /* interactive controls */
+  --surface-l4: rgba(38, 37, 48, 0.90);       /* focused/selected/emphasized */
+  --surface-glass: rgba(14, 14, 18, 0.72);    /* sidebar / bottom-nav glass */
+
+  /* Refined borders for the atmospheric system */
+  --line-atmos: rgba(139, 92, 246, 0.10);     /* very subtle purple-tinted border */
+  --line-atmos-strong: rgba(167, 139, 250, 0.22);
+
+  /* Depth shadows tuned for the atmospheric system */
+  --shadow-card: 0 4px 20px -8px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 20px 50px -16px rgba(0, 0, 0, 0.65), 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-accent-glow: 0 0 24px -6px rgba(139, 92, 246, 0.25);
 }
 
 /* ---------- Tactile icon system tokens (single place to tune every icon tile) ---------- */
@@ -83,4 +111,93 @@
   --tile-hover-lift: -2px;
   --tile-pressed-scale: 0.94;
   --tile-disabled-opacity: 0.45;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Light Theme — white + red/coral atmosphere
+   Premium light environment: warm white surfaces, elegant red accent,
+   soft crimson atmospheric lighting. Not an inversion — intentionally
+   designed for readability with atmospheric depth.
+   ═══════════════════════════════════════════════════════════════════ */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #faf7f5;
+  --surface-1: #ffffff;
+  --surface-2: #f5f1ed;
+  --surface-3: #ede8e3;
+  --surface-4: #ddd6d0;
+
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.14);
+
+  --text: #1a1a20;
+  --text-2: #5a5a64;
+  --text-3: #8a8a94;
+
+  /* Red/coral accent system */
+  --accent-deep: #991b1b;
+  --accent-royal: #be1e2e;
+  --accent: #dc2626;
+  --accent-electric: #ef4444;
+  --accent-lavender: #fca5a5;
+  --accent-soft: rgba(220, 38, 38, 0.10);
+  --accent-line: rgba(239, 68, 68, 0.30);
+
+  --ok: #16a34a;
+  --warn: #c2780c;
+  --danger: #dc2626;
+
+  /* Holiday red blends with accent in light mode */
+  --holiday: #dc2626;
+  --holiday-deep: #991b1b;
+  --holiday-soft: rgba(220, 38, 38, 0.10);
+  --holiday-line: rgba(220, 38, 38, 0.35);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 30px -12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 30px 70px -20px rgba(0, 0, 0, 0.15);
+
+  /* Atmospheric background — white + red/coral */
+  --atmos-base: #f8f5f3;
+  --atmos-orb-1: rgba(220, 38, 38, 0.12);
+  --atmos-orb-2: rgba(155, 28, 46, 0.09);
+  --atmos-orb-3: rgba(239, 68, 68, 0.07);
+  --atmos-orb-4: rgba(248, 113, 113, 0.05);
+  --atmos-grid: rgba(220, 38, 38, 0.025);
+
+  /* Surface hierarchy — light translucent */
+  --surface-l1: rgba(255, 252, 250, 0.42);
+  --surface-l2: rgba(248, 245, 242, 0.72);
+  --surface-l3: rgba(238, 233, 228, 0.85);
+  --surface-l4: rgba(226, 219, 213, 0.92);
+  --surface-glass: rgba(255, 252, 250, 0.78);
+
+  --line-atmos: rgba(220, 38, 38, 0.07);
+  --line-atmos-strong: rgba(239, 68, 68, 0.16);
+
+  --shadow-card: 0 4px 20px -8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 20px 50px -16px rgba(0, 0, 0, 0.10), 0 0 1px rgba(0, 0, 0, 0.05);
+  --shadow-accent-glow: 0 0 24px -6px rgba(220, 38, 38, 0.12);
+
+  /* Tactile icon adjustments for light surfaces */
+  --tile-highlight: rgba(255, 255, 255, 0.4);
+  --tile-rim: rgba(255, 255, 255, 0.5);
+  --tile-shade: rgba(0, 0, 0, 0.22);
+  --tile-shadow-y: 6px;
+  --tile-intensity: 0.85;
+}
+
+/* ── Theme transition — coordinated, fast, not per-element chaos ── */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 320ms var(--ease-out),
+              background 320ms var(--ease-out),
+              color 320ms var(--ease-out),
+              border-color 320ms var(--ease-out),
+              box-shadow 320ms var(--ease-out),
+              fill 320ms var(--ease-out),
+              stroke 320ms var(--ease-out) !important;
 }

@@ -53,7 +53,20 @@ export default function SettingsPage() {
       <p className="faint small" style={{ marginTop: 16 }}>LifeOS · {user?.email}</p>
 
       <Overlay open={open === 'appearance'} onClose={() => setOpen(null)} title="Appearance" footer={<Button onClick={() => setOpen(null)}>Done</Button>}>
-        <div className="detail-grid">
+        <div className="appearance-section">
+          <div className="caption" style={{ marginBottom: 8 }}>App Theme</div>
+          <div className="theme-options">
+            <button type="button" className={`theme-option${settings.theme === 'dark' ? ' active' : ''}`} onClick={() => patch({ theme: 'dark' }, 'Theme: Dark')}>
+              <div className="theme-preview theme-preview-dark" />
+              <span>Dark</span>
+            </button>
+            <button type="button" className={`theme-option${settings.theme === 'light' ? ' active' : ''}`} onClick={() => patch({ theme: 'light' }, 'Theme: Light')}>
+              <div className="theme-preview theme-preview-light" />
+              <span>Light</span>
+            </button>
+          </div>
+        </div>
+        <div className="detail-grid" style={{ marginTop: 20 }}>
           <Row as="div" title="Density" subtitle="Comfortable or compact" trailing={
             <select className="input" value={settings.density} onChange={(e) => patch({ density: e.target.value }, 'Density updated')}>
               <option value="comfortable">Comfortable</option><option value="compact">Compact</option>
