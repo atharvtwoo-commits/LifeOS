@@ -63,9 +63,9 @@
 .cal-dots i[data-kind='event'] { background: var(--accent-royal); }
 @media (min-width: 1024px) { .cal-layout { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; gap: var(--s8); } .cal-cell { aspect-ratio: auto; min-height: 84px; } .cal-details { position: sticky; top: var(--s8); } }
 
-/* Calendar — holiday treatment (red number + ring + soft tint; never outside the month) */
-.cal-cell[data-holiday='true']:not([data-outside='true']) .cal-num { color: var(--holiday); font-weight: 600; }
-.cal-cell[data-holiday='true']:not([data-outside='true']):not([data-selected='true']):not([data-today='true']) .cal-num { box-shadow: inset 0 0 0 1.5px var(--holiday-line); }
+/* Calendar — holiday treatment (white number on red circle + soft tint; never outside the month) */
+.cal-cell[data-holiday='true']:not([data-outside='true']) .cal-num { color: #fff; font-weight: 600; }
+.cal-cell[data-holiday='true']:not([data-outside='true']):not([data-selected='true']) .cal-num { background: var(--holiday-deep); box-shadow: inset 0 0 0 1.5px var(--holiday); }
 .cal-cell[data-holiday='true']:not([data-outside='true']):not([data-selected='true']):not(:hover) { background: var(--holiday-soft); }
 .cal-cell[data-selected='true'][data-holiday='true'] .cal-num { background: var(--holiday-deep); color: #fff; box-shadow: inset 0 0 0 1.5px var(--holiday); }
 .cal-details .section { margin-top: var(--s8); }
@@ -385,7 +385,7 @@
 
 /* ── Settings: Appearance theme selector ── */
 .appearance-section { display: grid; gap: var(--s2); }
-.theme-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); }
+.theme-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s3); }
 .theme-option { display: grid; gap: var(--s2); justify-items: center; padding: var(--s3) var(--s2); border-radius: var(--r-md); border: 1.5px solid var(--line-atmos); background: var(--surface-l2); cursor: pointer; transition: border-color var(--dur) var(--ease-out), background var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-out), box-shadow var(--dur) var(--ease-out); font-size: var(--fs-small); color: var(--text-2); }
 .theme-option:hover { border-color: var(--line-atmos-strong); background: var(--surface-l3); }
 .theme-option:active { transform: scale(0.97); }
@@ -395,8 +395,7 @@
 .theme-preview-dark::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(109, 62, 230, 0.45), transparent 65%); }
 .theme-preview-light { background: #faf7f5; }
 .theme-preview-light::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(220, 38, 38, 0.18), transparent 65%); }
-.theme-preview-system { background: linear-gradient(135deg, #0a0a0c 0% 49%, #faf7f5 51% 100%); }
-.theme-preview-system::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(109, 62, 230, 0.3), transparent 60%); }
+
 
 /* ── Responsive fixes ── */
 @media (max-width: 430px) {

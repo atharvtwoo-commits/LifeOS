@@ -56,10 +56,6 @@ export default function SettingsPage() {
         <div className="appearance-section">
           <div className="caption" style={{ marginBottom: 8 }}>App Theme</div>
           <div className="theme-options">
-            <button type="button" className={`theme-option${settings.theme === 'system' ? ' active' : ''}`} onClick={() => patch({ theme: 'system' }, 'Theme: System')}>
-              <div className="theme-preview theme-preview-system" />
-              <span>System</span>
-            </button>
             <button type="button" className={`theme-option${settings.theme === 'dark' ? ' active' : ''}`} onClick={() => patch({ theme: 'dark' }, 'Theme: Dark')}>
               <div className="theme-preview theme-preview-dark" />
               <span>Dark</span>

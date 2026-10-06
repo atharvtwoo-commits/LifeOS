@@ -293,11 +293,7 @@ export default function CalendarPage() {
                   {entries.map((e) => <CalEntry key={e.id} e={e} tz={tz} />)}
                 </div>
               )}
-              <Button variant="primary" icon="plus" onClick={() => setCreating(true)} style={{ marginTop: 12 }}>New event</Button>
             </>
-          )}
-          {view !== 'month' && (
-            <Button variant="primary" icon="plus" onClick={() => setCreating(true)}>New event</Button>
           )}
           <UpcomingHolidays from={todayK} onPick={pickDate} />
         </section>

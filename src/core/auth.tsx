@@ -4,7 +4,7 @@ import { api } from '../api/client';
 
 export interface Settings {
   timezone: string; language: string; weekStart: number; workStart: string; workEnd: string; workDays: number[]; bufferMin: number;
-  theme: 'dark' | 'light' | 'system'; density: 'comfortable' | 'compact'; motion: 'system' | 'reduced' | 'full';
+  theme: 'dark' | 'light'; density: 'comfortable' | 'compact'; motion: 'system' | 'reduced' | 'full';
   notifications: { deadlines: boolean; overdue: boolean; capacity: boolean; stalled: boolean; habits: boolean; agent: boolean; maxPerDay: number };
   privacy: { agentUsesMemory: boolean; agentMayReadNotes: boolean };
   agent: { enabled: boolean; confirmCreates: boolean };
@@ -43,24 +43,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     root.dataset.density = settings.density;
     root.dataset.motion = settings.motion;
 
-    const mq = window.matchMedia('(prefers-color-scheme: light)');
     const applyTheme = () => {
-      const effective = settings.theme === 'system' ? (mq.matches ? 'light' : 'dark') : settings.theme;
       root.classList.add('theme-transitioning');
-      root.dataset.theme = effective;
-      root.style.colorScheme = effective;
+      root.dataset.theme = settings.theme;
+      root.style.colorScheme = settings.theme;
     };
 
     applyTheme();
 
     // Clean up transition class after the coordinated theme change completes
     const t = setTimeout(() => root.classList.remove('theme-transitioning'), 380);
-
-    if (settings.theme === 'system') {
-      const handler = () => applyTheme();
-      mq.addEventListener('change', handler);
-      return () => { mq.removeEventListener('change', handler); clearTimeout(t); };
-    }
     return () => clearTimeout(t);
   }, [settings.theme, settings.density, settings.motion]);
 
