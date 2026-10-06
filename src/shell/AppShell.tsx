@@ -65,7 +65,14 @@ export function AppShell() {
 
   return (
     <div className="shell">
-      <div className="shell-atmosphere" aria-hidden="true" />
+      <div className="shell-atmosphere" aria-hidden="true">
+        <div className="atmos-orb atmos-orb-1" />
+        <div className="atmos-orb atmos-orb-2" />
+        <div className="atmos-orb atmos-orb-3" />
+        <div className="atmos-orb atmos-orb-4" />
+        <div className="atmos-grid" />
+        <div className="atmos-haze" />
+      </div>
       <a href="#main" className="skip-link">Skip to content</a>
       <Sidebar />
       <main id="main" className="main" tabIndex={-1}>

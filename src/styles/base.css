@@ -79,6 +79,7 @@ ul, ol { list-style: none; margin: 0; padding: 0; }
 }
 
 /* ── Ambient atmosphere drift (very slow, barely perceptible) ── */
+/* Legacy keyframes retained for compatibility; orb drifts live in shell.css. */
 @keyframes lo-atmosphere-drift {
   0%, 100% { transform: translate(0, 0); }
   50% { transform: translate(1.5%, -1%); }
@@ -106,5 +107,7 @@ ul, ol { list-style: none; margin: 0; padding: 0; }
     scroll-behavior: auto !important;
   }
   .shell-atmosphere,
-  .shell-atmosphere * { animation: none !important; }
+  .shell-atmosphere *,
+  .atmos-orb,
+  .atmos-haze { animation: none !important; }
 }
