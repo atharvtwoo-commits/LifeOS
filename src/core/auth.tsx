@@ -42,7 +42,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.dataset.density = settings.density;
     root.dataset.motion = settings.motion;
-  }, [settings.density, settings.motion]);
+
+    const mq = window.matchMedia('(prefers-color-scheme: light)');
+    const applyTheme = () => {
+      const effective = settings.theme === 'system' ? (mq.matches ? 'light' : 'dark') : settings.theme;
+      root.classList.add('theme-transitioning');
+      root.dataset.theme = effective;
+      root.style.colorScheme = effective;
+    };
+
+    applyTheme();
+
+    // Clean up transition class after the coordinated theme change completes
+    const t = setTimeout(() => root.classList.remove('theme-transitioning'), 380);
+
+    if (settings.theme === 'system') {
+      const handler = () => applyTheme();
+      mq.addEventListener('change', handler);
+      return () => { mq.removeEventListener('change', handler); clearTimeout(t); };
+    }
+    return () => clearTimeout(t);
+  }, [settings.theme, settings.density, settings.motion]);
 
   const login = useCallback(async (email: string, password: string) => { setUser(await api.post<User>('/auth/login', { email, password })); setStatus('authed'); }, []);
   const register = useCallback(async (name: string, email: string, password: string) => {

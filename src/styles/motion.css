@@ -497,3 +497,92 @@
   /* Keep focus enter as simple fade for spatial understanding */
   .focus-fullscreen { animation: lo-fade var(--dur) var(--ease-out) both !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   12. CINEMATIC ENHANCEMENTS
+   Brings the authenticated app to the same energy level as the login
+   page — blur entrance, staggered headings, stronger card formation,
+   and richer interactive feedback. Builds on the existing Phase 3
+   infrastructure without replacing it.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Stronger page entrance — blur + larger movement (login-quality) ── */
+@keyframes lo-page-enter {
+  from { opacity: 0; transform: translateY(20px) scale(0.996); filter: blur(4px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes lo-page-enter-left {
+  from { opacity: 0; transform: translateX(-24px) scale(0.996); filter: blur(4px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes lo-page-enter-right {
+  from { opacity: 0; transform: translateX(24px) scale(0.996); filter: blur(4px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* Stronger card entrance — scale + deeper translate */
+@keyframes lo-card-enter {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Heading reveal — staggered entrance for page headers ──
+   Eyebrow → Title → Subtitle → Actions form a coordinated sequence. */
+.page-header > div:first-child > * {
+  animation: lo-fade-up var(--dur-page) var(--ease-entrance) both;
+}
+.page-header > div:first-child > *:nth-child(1) { animation-delay: 60ms; }
+.page-header > div:first-child > *:nth-child(2) { animation-delay: 120ms; }
+.page-header > div:first-child > *:nth-child(3) { animation-delay: 180ms; }
+.page-header > .header-actions {
+  animation: lo-fade-up var(--dur-page) var(--ease-entrance) both;
+  animation-delay: 220ms;
+}
+
+/* ── Section headings — subtle stagger ── */
+.section { animation: lo-fade-up var(--dur-reveal) var(--ease-entrance) both; animation-delay: 200ms; }
+
+/* ── Enhanced interactive hover — purple glow, border illumination, lift ── */
+.surface[data-hover]:hover,
+.goal-card:hover,
+.holiday-item:hover,
+.domain-tile:hover {
+  border-color: var(--line-atmos-strong);
+  box-shadow: var(--shadow-elevated), var(--shadow-accent-glow);
+  transform: translateY(-2px);
+}
+
+.btn[data-variant='secondary']:hover:not(:disabled) {
+  border-color: var(--accent-line);
+  box-shadow: 0 0 16px -4px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.btn[data-variant='ghost']:hover:not(:disabled) {
+  box-shadow: 0 0 12px -4px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.input:focus-visible {
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 0 20px -4px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* ── Enhanced stagger — more cinematic card formation ── */
+.stagger > * { animation: lo-card-enter var(--dur-reveal) var(--ease-entrance) both; }
+.stagger > *:nth-child(1) { animation-delay: 80ms; }
+.stagger > *:nth-child(2) { animation-delay: 140ms; }
+.stagger > *:nth-child(3) { animation-delay: 200ms; }
+.stagger > *:nth-child(4) { animation-delay: 260ms; }
+.stagger > *:nth-child(5) { animation-delay: 310ms; }
+.stagger > *:nth-child(6) { animation-delay: 350ms; }
+.stagger > *:nth-child(n+7) { animation-delay: 390ms; }
+
+/* ── Reduced motion for cinematic enhancements ── */
+@media (prefers-reduced-motion: reduce) {
+  /* Blur entrance → instant opacity */
+  .page[data-anim] { animation: lo-fade var(--dur-fast) var(--ease-out) both !important; }
+  /* No heading stagger — all appear together */
+  .page-header > div:first-child > *,
+  .page-header > .header-actions,
+  .section { animation: lo-fade var(--dur-fast) var(--ease-out) both !important; animation-delay: 0ms !important; }
+  /* Atmosphere breathing stops */
+  .shell-atmosphere { animation: none !important; }
+}
