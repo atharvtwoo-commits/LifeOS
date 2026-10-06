@@ -67,6 +67,32 @@
   --rail-w: 84px;
   --bottom-nav-h: 68px;
   --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* ── Atmospheric background system ── */
+  /* Near-black base with deep-purple ambient illumination — extends the login language. */
+  --atmos-base: #07060c;
+  --atmos-grad-1: rgba(76, 29, 149, 0.14);   /* deep purple, top-left */
+  --atmos-grad-2: rgba(109, 62, 230, 0.10);   /* royal purple, bottom-right */
+  --atmos-grad-3: rgba(139, 92, 246, 0.05);   /* accent purple, center */
+  --atmos-grid: rgba(139, 92, 246, 0.028);    /* grid texture lines */
+  --atmos-grid-size: 56px;
+
+  /* ── Surface hierarchy (Level 0–4) ── */
+  /* Level 0 = atmospheric background (above). Level 1 = app surface, Level 2 = cards, Level 3 = controls, Level 4 = emphasis. */
+  --surface-l1: rgba(16, 16, 20, 0.55);       /* main app surface — translucent, shows atmosphere */
+  --surface-l2: rgba(23, 23, 28, 0.72);       /* cards/panels */
+  --surface-l3: rgba(31, 31, 38, 0.85);       /* interactive controls */
+  --surface-l4: rgba(42, 42, 51, 0.92);       /* focused/selected/emphasized */
+  --surface-glass: rgba(14, 14, 18, 0.72);    /* sidebar / bottom-nav glass */
+
+  /* Refined borders for the atmospheric system */
+  --line-atmos: rgba(139, 92, 246, 0.10);     /* very subtle purple-tinted border */
+  --line-atmos-strong: rgba(167, 139, 250, 0.22);
+
+  /* Depth shadows tuned for the atmospheric system */
+  --shadow-card: 0 4px 20px -8px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 20px 50px -16px rgba(0, 0, 0, 0.65), 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-accent-glow: 0 0 24px -6px rgba(139, 92, 246, 0.25);
 }
 
 /* ---------- Tactile icon system tokens (single place to tune every icon tile) ---------- */

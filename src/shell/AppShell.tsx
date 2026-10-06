@@ -65,6 +65,7 @@ export function AppShell() {
 
   return (
     <div className="shell">
+      <div className="shell-atmosphere" aria-hidden="true" />
       <a href="#main" className="skip-link">Skip to content</a>
       <Sidebar />
       <main id="main" className="main" tabIndex={-1}>
