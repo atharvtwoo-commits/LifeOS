@@ -298,6 +298,12 @@
 .today-goal:active { transform: scale(0.99); }
 .today-goal-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
 
+/* ── Today: important empty state ── */
+.important-empty { display: grid; justify-items: center; gap: var(--s4); padding: var(--s8) var(--s4); text-align: center; }
+.important-empty-illustration { width: clamp(160px, 38vw, 280px); height: auto; aspect-ratio: 1 / 1; object-fit: contain; display: block; animation: lo-fade-up var(--dur-reveal) var(--ease-entrance) both; }
+.important-empty-text { margin: 0; animation: lo-fade-up var(--dur-reveal) var(--ease-entrance) both; animation-delay: 120ms; }
+@media (max-width: 430px) { .important-empty { padding: var(--s6) var(--s2); } .important-empty-illustration { width: clamp(140px, 52vw, 200px); } }
+
 /* Quick add (Tasks) */
 .quick-add { display: flex; gap: var(--s3); margin-bottom: var(--s4); }
 .quick-add .input { flex: 1; }
