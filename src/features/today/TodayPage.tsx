@@ -178,7 +178,7 @@ export default function TodayPage() {
                   alt="Recycling illustration"
                   loading="lazy"
                 />
-                <p className="muted small important-empty-text">No high-priority tasks open.</p>
+                <p className="important-empty-text">No high-priority tasks open.</p>
               </div>
             )}
           </Section>
