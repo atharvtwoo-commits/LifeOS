@@ -174,7 +174,7 @@ export default function TodayPage() {
               <div className="important-empty">
                 <img
                   className="important-empty-illustration"
-                  src="https://media.base44.com/images/public/6ac39b982261614d4c2036b0/c9f7393c7_ChatGPTImageOct7202605_19_07PM.png"
+                  src="/recycle-illustration.png"
                   alt="Recycling illustration"
                   loading="lazy"
                 />
