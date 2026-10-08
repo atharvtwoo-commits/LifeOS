@@ -83,15 +83,10 @@
 
 .legal-body strong { color: var(--text); }
 
-.legal-placeholder {
-  display: inline-block;
-  background: var(--warn);
-  color: #000;
+.legal-pending {
+  font-style: italic;
+  color: var(--text-3);
   font-size: var(--fs-small);
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: var(--r-sm);
-  margin: 2px 0;
 }
 
 .legal-callout {

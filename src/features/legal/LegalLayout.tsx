@@ -1,9 +1,14 @@
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { LEGAL_CONFIG, isPlaceholder } from './legalConfig';
 import './legal.css';
 
 export function LegalLayout({ title, children }: { title: string; children: ReactNode }) {
+  useEffect(() => {
+    document.title = `LifeOS — ${title}`;
+  }, [title]);
+
   return (
     <div className="legal-page">
       <header className="legal-header">
@@ -22,15 +27,15 @@ export function LegalLayout({ title, children }: { title: string; children: Reac
           <Link to="/cookies">Cookie &amp; Storage</Link>
         </nav>
         <p className="legal-copyright">
-          © {new Date().getFullYear().toString()} {isPlaceholder(LEGAL_CONFIG.businessName) ? LEGAL_CONFIG.businessName : LEGAL_CONFIG.businessName}. All rights reserved.
+          © {new Date().getFullYear().toString()} {isPlaceholder(LEGAL_CONFIG.businessName) ? LEGAL_CONFIG.appName : LEGAL_CONFIG.businessName}. All rights reserved.
         </p>
       </footer>
     </div>
   );
 }
 
-/** Renders a config value, showing a visible warning badge if it's still a placeholder. */
+/** Renders a config value, showing a clean pending note if it's not yet configured. */
 export function ConfigValue({ value }: { value: string }) {
-  if (isPlaceholder(value)) return <span className="legal-placeholder">{value}</span>;
+  if (isPlaceholder(value)) return <em className="legal-pending">to be provided before launch</em>;
   return <strong>{value}</strong>;
 }

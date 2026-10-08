@@ -57,18 +57,27 @@ const TITLES: Record<string, string> = {
   '/login': 'Sign in',
 };
 
+/** Application-level loading shell — LifeOS atmospheric background with a subtle skeleton. */
+function LoadingShell() {
+  return (
+    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100dvh', background: 'var(--atmos-base)', padding: 32 }}>
+      <LoadingState rows={3} />
+    </div>
+  );
+}
+
 function Gate() {
   const { status } = useAuth();
   const { pathname } = useLocation();
   useEffect(() => { document.title = `${TITLES[pathname] ?? 'LifeOS'} · LifeOS`; }, [pathname]);
 
-  if (status === 'loading') return <div style={{ display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>;
+  if (status === 'loading') return <LoadingShell />;
   if (status === 'anon') return <Login />;
 
   return (
     <CoreProvider>
       <ToastProvider>
-        <Suspense fallback={<div style={{ padding: 32 }}><LoadingState rows={3} /></div>}>
+        <Suspense fallback={<LoadingShell />}>
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<Today />} />
@@ -115,11 +124,11 @@ export function App() {
       <AuthProvider>
         <Routes>
           {/* Legal pages — accessible without authentication */}
-          <Route path="/privacy" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Privacy /></Suspense>} />
-          <Route path="/terms" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Terms /></Suspense>} />
-          <Route path="/refunds" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Refunds /></Suspense>} />
-          <Route path="/cookies" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Cookies /></Suspense>} />
-          <Route path="*" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Gate /></Suspense>} />
+          <Route path="/privacy" element={<Suspense fallback={<LoadingShell />}><Privacy /></Suspense>} />
+          <Route path="/terms" element={<Suspense fallback={<LoadingShell />}><Terms /></Suspense>} />
+          <Route path="/refunds" element={<Suspense fallback={<LoadingShell />}><Refunds /></Suspense>} />
+          <Route path="/cookies" element={<Suspense fallback={<LoadingShell />}><Cookies /></Suspense>} />
+          <Route path="*" element={<Suspense fallback={<LoadingShell />}><Gate /></Suspense>} />
         </Routes>
       </AuthProvider>
     </ErrorBoundary>

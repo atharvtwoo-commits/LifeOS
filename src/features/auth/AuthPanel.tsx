@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../core/auth';
 import GoogleButton from './GoogleButton';
 
 type Mode = 'login' | 'register';
@@ -13,6 +14,10 @@ const Icon = {
   alert: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>,
 };
 
+const LOGIN_TAB_ID = 'ax-tab-login';
+const REGISTER_TAB_ID = 'ax-tab-register';
+const PANEL_ID = 'ax-tabpanel';
+
 interface Props {
   mode: Mode;
   setMode: (m: Mode) => void;
@@ -23,14 +28,51 @@ interface Props {
 
 /** Right-panel authentication form — presentational; auth logic lives in AuthPage. */
 export default function AuthPanel({ mode, setMode, error, busy, onSubmit }: Props) {
+  const { googleConfigured } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
+  const [googleReady, setGoogleReady] = useState<boolean | null>(null);
+
+  useEffect(() => { googleConfigured().then(setGoogleReady); }, [googleConfigured]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({ name, email, password });
+  };
+
+  const handleTabKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown': {
+        e.preventDefault();
+        const next = mode === 'login' ? 'register' : 'login';
+        setMode(next);
+        document.getElementById(next === 'login' ? LOGIN_TAB_ID : REGISTER_TAB_ID)?.focus();
+        break;
+      }
+      case 'ArrowLeft':
+      case 'ArrowUp': {
+        e.preventDefault();
+        const prev = mode === 'login' ? 'register' : 'login';
+        setMode(prev);
+        document.getElementById(prev === 'login' ? LOGIN_TAB_ID : REGISTER_TAB_ID)?.focus();
+        break;
+      }
+      case 'Home': {
+        e.preventDefault();
+        setMode('login');
+        document.getElementById(LOGIN_TAB_ID)?.focus();
+        break;
+      }
+      case 'End': {
+        e.preventDefault();
+        setMode('register');
+        document.getElementById(REGISTER_TAB_ID)?.focus();
+        break;
+      }
+    }
   };
 
   return (
@@ -41,19 +83,38 @@ export default function AuthPanel({ mode, setMode, error, busy, onSubmit }: Prop
           <p>{mode === 'login' ? 'Sign in to continue to LifeOS' : 'Start understanding your life today'}</p>
         </div>
 
-        <div className="ax-toggle ax-enter ax-enter-fade" style={{ animationDelay: '850ms' }} role="tablist" aria-label="Authentication mode">
-          <button role="tab" aria-selected={mode === 'login'} className={`ax-toggle-btn ${mode === 'login' ? 'active' : ''}`} onClick={() => setMode('login')}>Sign in</button>
-          <button role="tab" aria-selected={mode === 'register'} className={`ax-toggle-btn ${mode === 'register' ? 'active' : ''}`} onClick={() => setMode('register')}>Create account</button>
+        <div className="ax-toggle ax-enter ax-enter-fade" style={{ animationDelay: '850ms' }} role="tablist" aria-label="Authentication mode" onKeyDown={handleTabKeyDown}>
+          <button
+            role="tab"
+            id={LOGIN_TAB_ID}
+            aria-selected={mode === 'login'}
+            aria-controls={PANEL_ID}
+            tabIndex={mode === 'login' ? 0 : -1}
+            className={`ax-toggle-btn ${mode === 'login' ? 'active' : ''}`}
+            onClick={() => setMode('login')}
+          >Sign in</button>
+          <button
+            role="tab"
+            id={REGISTER_TAB_ID}
+            aria-selected={mode === 'register'}
+            aria-controls={PANEL_ID}
+            tabIndex={mode === 'register' ? 0 : -1}
+            className={`ax-toggle-btn ${mode === 'register' ? 'active' : ''}`}
+            onClick={() => setMode('register')}
+          >Create account</button>
           <span className="ax-toggle-indicator" style={{ transform: mode === 'login' ? 'translateX(0)' : 'translateX(100%)' }} />
         </div>
 
-        <div className="ax-enter ax-enter-fade" style={{ animationDelay: '950ms' }}>
-          <GoogleButton disabled={busy} />
-        </div>
+        {googleReady && (
+          <>
+            <div className="ax-enter ax-enter-fade" style={{ animationDelay: '950ms' }}>
+              <GoogleButton disabled={busy} />
+            </div>
+            <div className="ax-divider ax-enter ax-enter-fade" style={{ animationDelay: '1050ms' }}><span>or</span></div>
+          </>
+        )}
 
-        <div className="ax-divider ax-enter ax-enter-fade" style={{ animationDelay: '1050ms' }}><span>or</span></div>
-
-        <form onSubmit={submit} className="ax-form">
+        <form onSubmit={submit} className="ax-form" role="tabpanel" id={PANEL_ID} aria-labelledby={mode === 'login' ? LOGIN_TAB_ID : REGISTER_TAB_ID}>
           {mode === 'register' && (
             <div className="ax-field ax-enter ax-enter-rise" style={{ animationDelay: '1150ms' }}>
               <label htmlFor="ax-name">Full name</label>
@@ -75,7 +136,7 @@ export default function AuthPanel({ mode, setMode, error, busy, onSubmit }: Prop
             <div className="ax-input-wrap">
               <span className="ax-input-icon">{Icon.lock}</span>
               <input id="ax-pw" type={showPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required autoComplete={mode === 'login' ? 'current-password' : 'new-password'} minLength={8} />
-              <button type="button" className="ax-pw-toggle" onClick={() => setShowPw((s) => !s)} aria-label={showPw ? 'Hide password' : 'Show password'} tabIndex={-1}>
+              <button type="button" className="ax-pw-toggle" onClick={() => setShowPw((s) => !s)} aria-label={showPw ? 'Hide password' : 'Show password'}>
                 {showPw ? Icon.eyeOff : Icon.eye}
               </button>
             </div>

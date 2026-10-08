@@ -2,26 +2,26 @@
  * Legal configuration — single source of truth for business details used across
  * Privacy Policy, Terms, Refunds, and Cookies pages.
  *
- * Every value below is a PLACEHOLDER. Replace each with real business information
- * before public launch. Values wrapped in [BRACKETS] are intentionally invalid
- * placeholders — they render visibly on the page so missing info is obvious.
+ * Every value below is EMPTY by default. Replace each with real business information
+ * before public launch. When a value is empty, the legal pages render a clean
+ * "to be provided before launch" note instead of fabricated information.
  *
- * DO NOT ship to production with placeholder values.
+ * DO NOT ship to production with empty values.
  */
 export const LEGAL_CONFIG = {
   // ── Business identity ──
-  businessName: '[LEGAL BUSINESS NAME — REQUIRED BEFORE PUBLIC LAUNCH]',
-  businessAddress: '[BUSINESS ADDRESS — REQUIRED IF APPLICABLE]',
-  companyRegistration: '[COMPANY REGISTRATION NUMBER — REQUIRED IF APPLICABLE]',
+  businessName: '',
+  businessAddress: '',
+  companyRegistration: '',
 
   // ── Contact ──
-  contactEmail: '[PRIVACY CONTACT EMAIL — REQUIRED]',
-  supportEmail: '[SUPPORT CONTACT EMAIL — REQUIRED IF DIFFERENT]',
-  grievanceOfficer: '[GRIEVANCE OFFICER NAME — REQUIRED FOR INDIA/DPDP IF APPLICABLE]',
-  grievanceEmail: '[GRIEVANCE CONTACT EMAIL — REQUIRED FOR INDIA/DPDP IF APPLICABLE]',
+  contactEmail: '',
+  supportEmail: '',
+  grievanceOfficer: '',
+  grievanceEmail: '',
 
   // ── Legal ──
-  governingLaw: '[GOVERNING LAW / JURISDICTION — CONFIGURE BEFORE LAUNCH]',
+  governingLaw: '',
 
   // ── Dates (ISO format) ──
   effectiveDate: '2026-10-08',
@@ -33,9 +33,9 @@ export const LEGAL_CONFIG = {
 } as const;
 
 /**
- * Returns true if a config value is still a placeholder.
- * Used to render visible warnings on legal pages.
+ * Returns true if a config value is still a placeholder (empty or bracketed).
+ * Used to render a clean pending note on legal pages.
  */
 export function isPlaceholder(value: string): boolean {
-  return value.startsWith('[') && value.endsWith(']');
+  return !value || (value.startsWith('[') && value.endsWith(']'));
 }

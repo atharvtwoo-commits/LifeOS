@@ -214,6 +214,8 @@
 .ax-pw-toggle:hover { color: var(--text-2); background: rgba(255, 255, 255, 0.06); }
 .ax-pw-toggle svg { width: 18px; height: 18px; transition: opacity 0.2s var(--ease-out), transform 0.25s var(--ease-out); }
 .ax-pw-toggle:active svg { transform: scale(0.88); }
+.ax-pw-toggle:focus-visible { outline: 2px solid var(--accent-electric); outline-offset: 2px; }
+.ax-toggle-btn:focus-visible { outline: 2px solid var(--accent-electric); outline-offset: 2px; }
 
 /* Error */
 .ax-error {

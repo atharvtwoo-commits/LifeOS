@@ -1,5 +1,5 @@
 import { LegalLayout, ConfigValue } from './LegalLayout';
-import { LEGAL_CONFIG } from './legalConfig';
+import { LEGAL_CONFIG, isPlaceholder } from './legalConfig';
 
 export default function PrivacyPage() {
   return (
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       <h2>1. Who operates {LEGAL_CONFIG.appName}</h2>
       <p>
         {LEGAL_CONFIG.appName} is operated by <ConfigValue value={LEGAL_CONFIG.businessName} />.
-        {LEGAL_CONFIG.businessAddress !== '[BUSINESS ADDRESS — REQUIRED IF APPLICABLE]' && (
+        {!isPlaceholder(LEGAL_CONFIG.businessAddress) && (
           <> Our address is <ConfigValue value={LEGAL_CONFIG.businessAddress} />.</>
         )}
       </p>
@@ -178,7 +178,7 @@ export default function PrivacyPage() {
       <ul>
         <li><strong>Notice:</strong> This Privacy Policy serves as the notice required under the DPDP Act, identifying the personal data collected, the purposes of collection, and the mechanisms for exercising your rights.</li>
         <li><strong>Consent:</strong> By creating an account, you consent to the collection and processing of your data as described in this policy. You can withdraw consent by deleting your account.</li>
-        <li><strong>Grievance:</strong> If you have a grievance, contact us at <ConfigValue value={LEGAL_CONFIG.grievanceEmail} />. {LEGAL_CONFIG.grievanceOfficer !== '[GRIEVANCE OFFICER NAME — REQUIRED FOR INDIA/DPDP IF APPLICABLE]' && (<>Our grievance officer is <ConfigValue value={LEGAL_CONFIG.grievanceOfficer} />.</>)}</li>
+        <li><strong>Grievance:</strong> If you have a grievance, contact us at <ConfigValue value={LEGAL_CONFIG.grievanceEmail} />. {!isPlaceholder(LEGAL_CONFIG.grievanceOfficer) && (<>Our grievance officer is <ConfigValue value={LEGAL_CONFIG.grievanceOfficer} />.</>)}</li>
         <li><strong>Children's data:</strong> {LEGAL_CONFIG.appName} is not directed at children under 18 and does not knowingly collect data from children. If you believe a child has provided data, contact us and we will delete it.</li>
       </ul>
       <p>
@@ -209,7 +209,7 @@ export default function PrivacyPage() {
       </p>
       <ul>
         <li>Email: <ConfigValue value={LEGAL_CONFIG.contactEmail} /></li>
-        {LEGAL_CONFIG.grievanceEmail !== '[GRIEVANCE CONTACT EMAIL — REQUIRED FOR INDIA/DPDP IF APPLICABLE]' && (
+        {!isPlaceholder(LEGAL_CONFIG.grievanceEmail) && (
           <li>Grievance: <ConfigValue value={LEGAL_CONFIG.grievanceEmail} /></li>
         )}
       </ul>

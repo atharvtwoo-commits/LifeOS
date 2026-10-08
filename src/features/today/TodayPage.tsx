@@ -175,7 +175,9 @@ export default function TodayPage() {
                 <img
                   className="important-empty-illustration"
                   src="/recycle-illustration.png"
-                  alt="Recycling illustration"
+                  alt="Recycling arrows illustration indicating no high-priority tasks to process"
+                  width={1316}
+                  height={1195}
                   loading="lazy"
                 />
                 <p className="important-empty-text">No high-priority tasks open.</p>
