@@ -95,7 +95,6 @@ export default function TodayPage() {
   const cap = data.capacity;
   const load = cap.available > 0 ? Math.min(1, (cap.committed + cap.planned) / cap.available) : 0;
   const habitsDone = data.habits.filter((h) => h.stats.doneToday).length;
-  const nothingToday = todays.length === 0 && data.overdueCount === 0 && data.habits.length === 0;
 
   return (
     <>
@@ -103,12 +102,13 @@ export default function TodayPage() {
         <div className="caption">{fmt.dateLong(now.toISOString(), tz)}</div>
         <h1>{greeting}, {user?.name}.</h1>
         <p className="muted lead">{stateMsg[data.state] ?? stateMsg.normal}</p>
-        {data.why.length > 0 && (
-          <div className="today-banner"><Alert tone="accent" icon="info">{data.why.join(' ')}</Alert></div>
-        )}
-        {data.why.length === 0 && nothingToday && (
-          <div className="today-banner"><Alert tone="accent" icon="info">Nothing is scheduled or due today.</Alert></div>
-        )}
+        {(() => {
+          const whyFiltered = data.why.filter((w) => !w.includes('Nothing is scheduled or due today'));
+          return whyFiltered.length > 0 ? (
+            <div className="today-banner"><Alert tone="accent" icon="info">{whyFiltered.join(' ')}</Alert></div>
+          ) : null;
+        })()}
+
       </header>
 
       {/* Quick capture */}
@@ -166,11 +166,21 @@ export default function TodayPage() {
           )}
 
           <Section title="Important" action={<Link to="/tasks" className="link small">All tasks</Link>}>
-            <Surface pad="none">
-              {data.important.length ? (
+            {data.important.length ? (
+              <Surface pad="none">
                 <ul className="list divided">{data.important.map((t) => <li key={t.id}><TaskRow task={t} onOpen={setOpen} /></li>)}</ul>
-              ) : <p className="muted small" style={{ padding: 20 }}>No high-priority tasks open.</p>}
-            </Surface>
+              </Surface>
+            ) : (
+              <div className="important-empty">
+                <img
+                  className="important-empty-illustration"
+                  src="/recycle-illustration.png"
+                  alt="Recycling illustration"
+                  loading="lazy"
+                />
+                <p className="important-empty-text">No high-priority tasks open.</p>
+              </div>
+            )}
           </Section>
 
           {data.habits.length > 0 && (
