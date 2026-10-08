@@ -277,6 +277,12 @@
 .byok-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .byok-input-area { display: grid; gap: 14px; padding: 16px; border-radius: var(--r-md); background: var(--surface-l1); border: 1px solid var(--line-atmos); }
 
+/* ── Today: empty Important section ── */
+.important-empty { display: grid; justify-items: center; gap: var(--s3); padding: var(--s5) var(--s3); text-align: center; }
+.important-empty-illustration { width: 100%; max-width: 380px; height: auto; }
+.important-empty-text { color: var(--text-3); font-size: var(--fs-small); }
+@media (max-width: 768px) { .important-empty-illustration { max-width: 320px; } }
+
 /* ── Today: quick capture, actions, habits, deadlines, goals ── */
 .today-capture { display: flex; gap: var(--s3); margin-bottom: var(--s5); }
 .today-capture .input { flex: 1; }

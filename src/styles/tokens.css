@@ -12,7 +12,7 @@
   /* Text */
   --text: #f4f4f7;
   --text-2: #a6a6b3;
-  --text-3: #80808d;
+  --text-3: #8a8a96;
 
   /* Accent: ~10% purple, used for selection, focus, intelligence */
   --accent-deep: #4c1d95;
@@ -133,7 +133,7 @@
 
   --text: #1a1a20;
   --text-2: #5a5a64;
-  --text-3: #8a8a94;
+  --text-3: #64646e;
 
   /* Red/coral accent system */
   --accent-deep: #991b1b;

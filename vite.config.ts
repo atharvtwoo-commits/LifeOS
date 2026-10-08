@@ -6,6 +6,9 @@ const target = process.env.API_PROXY_TARGET ?? 'http://localhost:8000';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    sourcemap: false,
+  },
   server: {
     host: '0.0.0.0',
     port: 3000,

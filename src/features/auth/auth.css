@@ -214,6 +214,8 @@
 .ax-pw-toggle:hover { color: var(--text-2); background: rgba(255, 255, 255, 0.06); }
 .ax-pw-toggle svg { width: 18px; height: 18px; transition: opacity 0.2s var(--ease-out), transform 0.25s var(--ease-out); }
 .ax-pw-toggle:active svg { transform: scale(0.88); }
+.ax-pw-toggle:focus-visible { outline: 2px solid var(--accent-electric); outline-offset: 2px; }
+.ax-toggle-btn:focus-visible { outline: 2px solid var(--accent-electric); outline-offset: 2px; }
 
 /* Error */
 .ax-error {
@@ -245,6 +247,10 @@
 .ax-switch { margin-top: 22px; text-align: center; font-size: var(--fs-small); color: var(--text-2); }
 .ax-switch button { color: var(--accent-electric); font-weight: 550; transition: color 0.2s; }
 .ax-switch button:hover { color: var(--accent-lavender); }
+
+.ax-legal { margin-top: 14px; text-align: center; font-size: var(--fs-caption); color: var(--text-3); line-height: 1.5; }
+.ax-legal a { color: var(--text-2); text-decoration: underline; text-underline-offset: 2px; }
+.ax-legal a:hover { color: var(--text); }
 
 /* ---------- Entrance animations ---------- */
 @keyframes ax-rise { from { opacity: 0; transform: translateY(18px); filter: blur(10px); } to { opacity: 1; transform: none; filter: blur(0); } }

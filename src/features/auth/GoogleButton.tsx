@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useAuth } from '../../core/auth';
 
 interface Props { disabled?: boolean; }
@@ -12,29 +11,22 @@ const GoogleIcon = () => (
   </svg>
 );
 
-/** Continue with Google — real OAuth redirect flow. Checks configuration and shows a
- *  polished inline message if credentials are missing, never navigates to a raw error. */
+/** Continue with Google — real OAuth redirect flow.
+ *  Parent (AuthPanel) only renders this when Google OAuth is configured. */
 export default function GoogleButton({ disabled }: Props) {
   const { googleLogin, googleConfigured } = useAuth();
-  const [ready, setReady] = useState(false);
-  const [msg, setMsg] = useState('');
-
-  useEffect(() => { googleConfigured().then(setReady); }, [googleConfigured]);
 
   const onClick = async () => {
-    setMsg('');
-    const ok = ready || (await googleConfigured());
-    if (!ok) { setMsg('Google sign-in is not configured yet. Add Google credentials in Settings to enable it.'); return; }
+    // Defensive re-check in case config changed since mount
+    const ok = await googleConfigured();
+    if (!ok) return;
     googleLogin();
   };
 
   return (
-    <div>
-      <button type="button" className="ax-google" onClick={onClick} disabled={disabled} aria-label="Continue with Google">
-        <GoogleIcon />
-        <span className="ax-google-label">Continue with Google</span>
-      </button>
-      {msg && <p style={{ marginTop: 8, fontSize: 'var(--fs-small)', color: 'var(--text-3)', lineHeight: 1.4, animation: 'ax-fade-up 0.3s var(--ease-out) both' }} role="status">{msg}</p>}
-    </div>
+    <button type="button" className="ax-google" onClick={onClick} disabled={disabled} aria-label="Continue with Google">
+      <GoogleIcon />
+      <span className="ax-google-label">Continue with Google</span>
+    </button>
   );
 }
