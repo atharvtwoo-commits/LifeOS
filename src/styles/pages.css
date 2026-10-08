@@ -40,7 +40,7 @@
 .timeline li[data-now='true'] { border-color: var(--accent); }
 .t-time { color: var(--text-3); }
 .agent-suggest { display: flex; gap: var(--s3); }
-.agent-card { background: linear-gradient(155deg, color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent-deep) 10%, transparent) 58%), var(--surface-l2); border-color: var(--accent-line); box-shadow: var(--shadow-card), var(--shadow-accent-glow); }
+.agent-card { background: linear-gradient(155deg, rgba(139, 92, 246, 0.22), rgba(76, 29, 149, 0.10) 58%), var(--surface-l2); border-color: var(--accent-line); box-shadow: var(--shadow-card), var(--shadow-accent-glow); }
 @media (min-width: 1024px) { .today-grid { grid-template-columns: minmax(0, 1fr) 340px; gap: var(--s10); } .goal-pair { grid-template-columns: 1fr 1fr; } }
 
 /* Calendar */
@@ -388,20 +388,6 @@
 
 /* ── Search ── */
 .search-kbd { font-family: var(--font); background: var(--surface-3); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 1px 6px; font-size: var(--fs-caption); color: var(--text-2); }
-
-/* ── Settings: Appearance theme selector ── */
-.appearance-section { display: grid; gap: var(--s2); }
-.theme-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s3); }
-.theme-option { display: grid; gap: var(--s2); justify-items: center; padding: var(--s3) var(--s2); border-radius: var(--r-md); border: 1.5px solid var(--line-atmos); background: var(--surface-l2); cursor: pointer; transition: border-color var(--dur) var(--ease-out), background var(--dur) var(--ease-out), transform var(--dur-fast) var(--ease-out), box-shadow var(--dur) var(--ease-out); font-size: var(--fs-small); color: var(--text-2); }
-.theme-option:hover { border-color: var(--line-atmos-strong); background: var(--surface-l3); }
-.theme-option:active { transform: scale(0.97); }
-.theme-option.active { border-color: var(--accent); color: var(--text); box-shadow: var(--shadow-accent-glow); }
-.theme-preview { width: 100%; height: 48px; border-radius: var(--r-sm); overflow: hidden; position: relative; }
-.theme-preview-dark { background: #0a0a0c; }
-.theme-preview-dark::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(109, 62, 230, 0.45), transparent 65%); }
-.theme-preview-light { background: #faf7f5; }
-.theme-preview-light::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(220, 38, 38, 0.18), transparent 65%); }
-
 
 /* ── Responsive fixes ── */
 @media (max-width: 430px) {
