@@ -37,6 +37,10 @@ const Connect = lazy(() => import('./features/connect/ConnectPage'));
 const Create = lazy(() => import('./features/create/CreatePage'));
 const Map = lazy(() => import('./features/map/MapPage'));
 const Patterns = lazy(() => import('./features/patterns/PatternsPage'));
+const Privacy = lazy(() => import('./features/legal/PrivacyPage'));
+const Terms = lazy(() => import('./features/legal/TermsPage'));
+const Refunds = lazy(() => import('./features/legal/RefundsPage'));
+const Cookies = lazy(() => import('./features/legal/CookiesPage'));
 
 function NotFound() {
   return <EmptyState icon="search" title="Page not found" text="That page doesn't exist in LifeOS." action={<Link to="/"><Button variant="primary">Go to Today</Button></Link>} />;
@@ -109,7 +113,14 @@ export function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <Gate />
+        <Routes>
+          {/* Legal pages — accessible without authentication */}
+          <Route path="/privacy" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Privacy /></Suspense>} />
+          <Route path="/terms" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Terms /></Suspense>} />
+          <Route path="/refunds" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Refunds /></Suspense>} />
+          <Route path="/cookies" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Cookies /></Suspense>} />
+          <Route path="*" element={<Suspense fallback={<div style={{ padding: 32, display: 'grid', placeItems: 'center', minHeight: '100dvh' }}><LoadingState rows={3} /></div>}><Gate /></Suspense>} />
+        </Routes>
       </AuthProvider>
     </ErrorBoundary>
   );

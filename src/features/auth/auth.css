@@ -246,6 +246,10 @@
 .ax-switch button { color: var(--accent-electric); font-weight: 550; transition: color 0.2s; }
 .ax-switch button:hover { color: var(--accent-lavender); }
 
+.ax-legal { margin-top: 14px; text-align: center; font-size: var(--fs-caption); color: var(--text-3); line-height: 1.5; }
+.ax-legal a { color: var(--text-2); text-decoration: underline; text-underline-offset: 2px; }
+.ax-legal a:hover { color: var(--text); }
+
 /* ---------- Entrance animations ---------- */
 @keyframes ax-rise { from { opacity: 0; transform: translateY(18px); filter: blur(10px); } to { opacity: 1; transform: none; filter: blur(0); } }
 @keyframes ax-rise-x { from { opacity: 0; transform: translateX(28px); filter: blur(12px); } to { opacity: 1; transform: none; filter: blur(0); } }
