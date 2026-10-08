@@ -51,6 +51,12 @@ export default function SettingsPage() {
         </ul>
       </Surface>
       <p className="faint small" style={{ marginTop: 16 }}>LifeOS · {user?.email}</p>
+      <nav className="settings-legal-links" aria-label="Legal pages" style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
+        <a href="/privacy" className="link small">Privacy Policy</a>
+        <a href="/terms" className="link small">Terms</a>
+        <a href="/refunds" className="link small">Refunds</a>
+        <a href="/cookies" className="link small">Cookies</a>
+      </nav>
 
       <Overlay open={open === 'appearance'} onClose={() => setOpen(null)} title="Appearance" footer={<Button onClick={() => setOpen(null)}>Done</Button>}>
         <div className="appearance-section">
@@ -109,10 +115,7 @@ export default function SettingsPage() {
       </Overlay>
 
       <Overlay open={open === 'account'} onClose={() => setOpen(null)} title="Account" footer={<Button onClick={() => setOpen(null)}>Done</Button>}>
-        <div className="detail-grid">
-          <Row as="div" title={user?.name ?? ''} subtitle={user?.email ?? ''} />
-          <Button variant="danger" icon="close" onClick={() => { logout(); setOpen(null); }}>Sign out</Button>
-        </div>
+        <AccountSection user={user} logout={logout} />
       </Overlay>
     </>
   );
@@ -239,6 +242,94 @@ function ByokSettings() {
       <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="link small" style={{ display: 'block', marginTop: 12 }}>
         → Get a Gemini API key from Google AI Studio
       </a>
+    </div>
+  );
+}
+
+/* ── Account section: profile, password, sessions, deletion ── */
+function AccountSection({ user, logout }: { user: { name: string; email: string } | null; logout: () => Promise<void> }) {
+  const toast = useToast();
+  const [showPw, setShowPw] = useState(false);
+  const [curPw, setCurPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [pwBusy, setPwBusy] = useState(false);
+  const [showDel, setShowDel] = useState(false);
+  const [delPw, setDelPw] = useState('');
+  const [delConfirm, setDelConfirm] = useState('');
+  const [delBusy, setDelBusy] = useState(false);
+
+  const changePw = async () => {
+    if (!curPw || !newPw) return;
+    setPwBusy(true);
+    try {
+      await api.post('/auth/password', { current: curPw, next: newPw });
+      toast('Password changed — all other sessions revoked');
+      setCurPw(''); setNewPw(''); setShowPw(false);
+    } catch (e) {
+      toast(e instanceof ApiError ? e.message : 'Could not change password');
+    } finally { setPwBusy(false); }
+  };
+
+  const revokeSessions = async () => {
+    try {
+      const r = await api.post<{ revoked: number }>('/auth/revoke-others', {});
+      toast(`${r.revoked} other session${r.revoked === 1 ? '' : 's'} revoked`);
+    } catch { toast('Could not revoke sessions'); }
+  };
+
+  const deleteAccount = async () => {
+    setDelBusy(true);
+    try {
+      await api.post('/auth/delete', { password: delPw, confirm: delConfirm });
+      toast('Account deleted');
+      await logout();
+    } catch (e) {
+      toast(e instanceof ApiError ? e.message : 'Could not delete account');
+      setDelBusy(false);
+    }
+  };
+
+  return (
+    <div className="detail-grid">
+      <Row as="div" title={user?.name ?? ''} subtitle={user?.email ?? ''} />
+      <Button variant="danger" icon="close" onClick={() => { logout(); }}>Sign out</Button>
+
+      <div style={{ marginTop: 16 }}>
+        <div className="caption" style={{ marginBottom: 8 }}>Change password</div>
+        {!showPw ? (
+          <Button size="sm" variant="ghost" icon="lock" onClick={() => setShowPw(true)}>Change password</Button>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <Input type="password" placeholder="Current password" value={curPw} onChange={(e) => setCurPw(e.target.value)} autoComplete="current-password" aria-label="Current password" />
+            <Input type="password" placeholder="New password (min 8 chars)" value={newPw} onChange={(e) => setNewPw(e.target.value)} autoComplete="new-password" minLength={8} aria-label="New password" />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button size="sm" variant="primary" onClick={changePw} disabled={pwBusy || !curPw || newPw.length < 8}>{pwBusy ? 'Changing…' : 'Change password'}</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setShowPw(false); setCurPw(''); setNewPw(''); }}>Cancel</Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div style={{ marginTop: 8 }}>
+        <Button size="sm" variant="ghost" icon="close" onClick={revokeSessions}>Revoke other sessions</Button>
+      </div>
+
+      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--line-atmos)' }}>
+        <div className="caption" style={{ marginBottom: 8, color: 'var(--danger)' }}>Danger zone</div>
+        {!showDel ? (
+          <Button size="sm" variant="danger" icon="trash" onClick={() => setShowDel(true)}>Delete account permanently</Button>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <Alert tone="warn" icon="alert">This permanently deletes all your data — tasks, goals, notes, memories, and settings. This cannot be undone.</Alert>
+            <Input type="password" placeholder="Your password" value={delPw} onChange={(e) => setDelPw(e.target.value)} autoComplete="current-password" aria-label="Password to confirm deletion" />
+            <Input type="text" placeholder='Type DELETE to confirm' value={delConfirm} onChange={(e) => setDelConfirm(e.target.value)} aria-label="Type DELETE to confirm" />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Button size="sm" variant="danger" onClick={deleteAccount} disabled={delBusy || !delPw || delConfirm !== 'DELETE'}>{delBusy ? 'Deleting…' : 'Delete my account'}</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setShowDel(false); setDelPw(''); setDelConfirm(''); }}>Cancel</Button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

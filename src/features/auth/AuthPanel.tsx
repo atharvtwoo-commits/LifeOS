@@ -99,6 +99,12 @@ export default function AuthPanel({ mode, setMode, error, busy, onSubmit }: Prop
             {mode === 'login' ? 'Create one' : 'Sign in'}
           </button>
         </p>
+
+        <p className="ax-legal ax-enter ax-enter-fade" style={{ animationDelay: '1500ms' }}>
+          By continuing, you agree to our{' '}
+          <a href="/terms" target="_blank" rel="noopener noreferrer">Terms</a>{' '}and{' '}
+          <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+        </p>
       </div>
     </div>
   );

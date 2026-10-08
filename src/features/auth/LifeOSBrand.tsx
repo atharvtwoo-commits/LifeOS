@@ -40,7 +40,7 @@ export default function LifeOSBrand() {
         ))}
       </div>
 
-      <div className="ax-brand-footer ax-enter ax-enter-fade" style={{ animationDelay: '1400ms' }}>Encrypted · Private · Yours</div>
+      <div className="ax-brand-footer ax-enter ax-enter-fade" style={{ animationDelay: '1400ms' }}>Your data · Your control · Exportable</div>
     </div>
   );
 }
