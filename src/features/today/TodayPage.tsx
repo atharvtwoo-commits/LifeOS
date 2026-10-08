@@ -166,11 +166,21 @@ export default function TodayPage() {
           )}
 
           <Section title="Important" action={<Link to="/tasks" className="link small">All tasks</Link>}>
-            <Surface pad="none">
-              {data.important.length ? (
+            {data.important.length ? (
+              <Surface pad="none">
                 <ul className="list divided">{data.important.map((t) => <li key={t.id}><TaskRow task={t} onOpen={setOpen} /></li>)}</ul>
-              ) : <p className="muted small" style={{ padding: 20 }}>No high-priority tasks open.</p>}
-            </Surface>
+              </Surface>
+            ) : (
+              <div className="important-empty">
+                <img
+                  className="important-empty-illustration"
+                  src="/recycle-illustration.png"
+                  alt="Recycling illustration"
+                  loading="lazy"
+                />
+                <p className="important-empty-text">No high-priority tasks open.</p>
+              </div>
+            )}
           </Section>
 
           {data.habits.length > 0 && (
